@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة كي كلوب</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1e3a8a;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-top: 20px;
+            color: #ffffff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 10px 20px;
+            animation: headerAnimation 3s ease-in-out infinite;
+        }
+
+        .header .logo {
+            width: 50px; /* Adjust logo size */
+            height: auto;
+            margin: 0 10px; /* Space between the logos and the text */
+            animation: logoEffect 2s ease-in-out infinite;
+        }
+
+        /* Animation for the header to move slightly */
+        @keyframes headerAnimation {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Animation effect for logos */
+        @keyframes logoEffect {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.1) rotate(15deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .question-container {
+            margin-top: 40px;
+            animation: fadeIn 2s ease-out;
+        }
+
+        .question {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: #f0f0f0;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .answer-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 60%;
+            max-width: 400px;
+        }
+
+        .answer-btn:hover {
+            background-color: #2563eb;
+            transform: scale(1.05);
+        }
+
+        .answer-btn:active {
+            transform: scale(0.98);
+        }
+
+        .answer-btn:focus {
+            outline: none;
+        }
+
+        .correct {
+            background-color: #22c55e !important; /* Green */
+        }
+
+        .wrong {
+            background-color: #ef4444 !important; /* Red */
+        }
+
+        #slogan {
+            font-size: 2.5rem;
+            margin-top: 30px;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .loading-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-text {
+            font-size: 2rem;
+            margin-top: 20px;
+            color: #fff;
+            animation: pulse 1.5s infinite;
+        }
+
+        .final-message {
+            font-size: 2.8rem;
+            color: #ffff00;
+            margin-top: 20px;
+            animation: fadeIn 2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="logo.jpg" class="logo" alt="Logo Left">
+        <h1>لعبة كي كلوب</h1>
+        <img src="logo.jpg" class="logo" alt="Logo Right">
+    </div>
+
+    <div id="game" class="loading-container">
+        <div class="loading-text" id="loading-text">جاري التحميل...</div>
+    </div>
+    
+    <div class="question-container" style="display:none;" id="question-container">
+        <div id="question-text" class="question"></div>
+        <button id="btn-1" class="answer-btn"></button>
+        <button id="btn-2" class="answer-btn"></button>
+        <button id="btn-3" class="answer-btn"></button>
+        <button id="btn-4" class="answer-btn"></button>
+        <div id="slogan"></div>
+    </div>
+
+    <div id="final-screen" style="display:none;">
+        <div id="slogan-final" class="final-message"></div>
+        <div class="final-message">Thanks for playing the game!</div>
+    </div>
+
+    <audio id="button-sound">
+        <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+    </audio>
+
+    <script>
+        const questions = [
+            { question: "متى تاسس الكي كلوب?", answers: ["2019", "2020", "2021", "2022"], correctAnswer: "2021" },
+            { question: "من هو أول رئيس لنادينا؟", answers: ["محمد مزهودي", "فاطمة باردي", "هالة هدوي", "جعفر التوجاني"], correctAnswer: "جعفر التوجاني" },
+            { question: "ما هو عدد اعظاء نادينا حاليا؟", answers: ["88 عضو", "78 عضو", "107 عضو", "98 عضو"], correctAnswer: "107 عضو" },
+            { question: "ما هو شعار نادينا؟", answers: ["نحن نصنع التغيير، نحن التغيير.", "العطاء من أجل مستقبل أفضل.", "معاً نبني مستقبل أفضل.", "خدمة المجتمع أولوية."], correctAnswer: "نحن نصنع التغيير، نحن التغيير." },
+            { question: "ماهو معدل الاعمار لاعضاء النادي?", answers: ["13-25", "12-25", "13-18", "12-18"], correctAnswer: "13-25" },
+            { question: "ما هو عدد الاعظاء المؤسسين؟", answers: ["15 عضو", "9 اعظاء", "32 عضو", "25 عضو"], correctAnswer: "15 عضو" },
+            { question: "متى يبدا (mandat) الجديدة كل سنة حسب (règlement)?", answers: ["30mars", "1 avril", "2 avril", "3avril"], correctAnswer: "2 avril" }
+        ];
+    
+        const sloganParts = ["المبرمج", "كوستر", "بين", "ايديكم", "والويب", "في", "عينيكم"];
+        let currentQuestion = 0;
+        let currentSloganPart = 0;
+    
+        const btns = [
+            document.getElementById("btn-1"),
+            document.getElementById("btn-2"),
+            document.getElementById("btn-3"),
+            document.getElementById("btn-4")
+        ];
+    
+        function resetButtonStyles() {
+            btns.forEach(btn => {
+                btn.classList.remove("correct", "wrong");
+                btn.disabled = false;
+            });
+        }
+    
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById("question-text").innerText = question.question;
+            btns.forEach((btn, index) => {
+                btn.innerText = question.answers[index];
+            });
+            document.getElementById("question-container").style.display = "block";
+            document.getElementById("game").style.display = "none";
+            resetButtonStyles();
+        }
+    
+        function showFinalScreen() {
+            document.getElementById("question-container").style.display = "none";
+            document.getElementById("final-screen").style.display = "block";
+            document.getElementById("slogan-final").innerText = "المبرمج كوستر بين ايديكم والويب في عينيكم";
+        }
+    
+        function handleAnswer(selectedBtn) {
+            const correctAnswer = questions[currentQuestion].correctAnswer;
+            const selectedAnswer = selectedBtn.innerText;
+            document.getElementById("button-sound").play();
+    
+            btns.forEach(btn => btn.disabled = true);
+    
+            if (selectedAnswer === correctAnswer) {
+                selectedBtn.classList.add("correct");
+                document.getElementById("slogan").innerText += " " + sloganParts[currentSloganPart];
+                currentSloganPart++;
+                setTimeout(() => {
+                    currentQuestion++;
+                    if (currentSloganPart === sloganParts.length || currentQuestion === questions.length) {
+                        showFinalScreen();
+                    } else {
+                        loadQuestion();
+                    }
+                }, 1000);
+            } else {
+                selectedBtn.classList.add("wrong");
+                setTimeout(() => {
+                    selectedBtn.classList.remove("wrong");
+                    btns.forEach(btn => btn.disabled = false);
+                }, 800);
+            }
+        }
+    
+        btns.forEach(btn => {
+            btn.onclick = () => handleAnswer(btn);
+        });
+    
+        loadQuestion();
+    </script>
+</body>
+</html>
