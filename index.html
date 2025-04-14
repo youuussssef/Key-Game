@@ -25,6 +25,8 @@
             margin-top: 20px;
             color: #ffffff;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+            opacity: 0; /* Initially hide the game name */
+            transition: opacity 2s ease-in-out;
         }
 
         .header {
@@ -34,6 +36,7 @@
             width: 100%;
             padding: 10px 20px;
             animation: headerAnimation 3s ease-in-out infinite;
+            display: none; /* Initially hide header */
         }
 
         .header .logo {
@@ -132,9 +135,24 @@
             left: 50%;
             transform: translate(-50%, -50%);
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
+            align-items: center;
+        }
+
+        .loading-bar {
+            width: 80%;
+            height: 30px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .loading-progress {
+            width: 0%;
+            height: 100%;
+            background-color: #76c7c0;
+            animation: loadProgress 3s forwards;
         }
 
         .loading-text {
@@ -170,18 +188,30 @@
                 opacity: 1;
             }
         }
+
+        @keyframes loadProgress {
+            0% {
+                width: 0%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
         
     </style>
 </head>
 <body>
-    <div class="header">
+    <div id="game" class="loading-container">
+        <div class="loading-text" id="loading-text">جاري التحميل...</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+
+    <div class="header" id="header">
         <img src="logo.jpg" class="logo" alt="Logo Left">
         <h1>لعبة كي كلوب</h1>
         <img src="logo.jpg" class="logo" alt="Logo Right">
-    </div>
-
-    <div id="game" class="loading-container">
-        <div class="loading-text" id="loading-text">جاري التحميل...</div>
     </div>
     
     <div class="question-container" style="display:none;" id="question-container">
@@ -279,8 +309,16 @@
         btns.forEach(btn => {
             btn.onclick = () => handleAnswer(btn);
         });
-    
-        loadQuestion();
+
+       // Start loading screen and delay game
+setTimeout(() => {
+    document.getElementById("game").style.display = "none";
+    document.getElementById("header").style.display = "flex"; // Show header after loading
+    document.querySelector("h1").style.opacity = 1; // Fade in the game name after loading
+    loadQuestion();
+}, 5000); // Delay 5 seconds for loading bar and text
+
+        
     </script>
 </body>
 </html>
